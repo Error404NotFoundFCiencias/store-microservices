@@ -42,6 +42,10 @@ public class Card implements Serializable{
     @JoinColumn(name = "bank_id")
 	private Bank bank;
 	
+	@Column(name = "customer_id")
+	private Long customerId;
+	
+	
 	@Transient
 	private Customer customer;
 	
