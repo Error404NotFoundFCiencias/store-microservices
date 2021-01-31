@@ -5,8 +5,8 @@ package com.microservices.payment.model;
 import lombok.Builder;
 import lombok.Data;
 
-@Data
 @Builder
+@Data
 public class Customer {
 	
     private Long id;
@@ -22,5 +22,7 @@ public class Customer {
     private String photoUrl;
 
     private String state;
+    
+    
 
 }

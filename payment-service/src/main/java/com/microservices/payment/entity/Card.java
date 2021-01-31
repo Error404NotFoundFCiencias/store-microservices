@@ -3,6 +3,7 @@ package com.microservices.payment.entity;
 import java.io.Serializable;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,11 +15,15 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.microservices.payment.model.Customer;
+
+import lombok.Data;
 
 import java.util.Date;
 
-
+@Data
+@Entity
 public class Card implements Serializable{
 
 	private static final long serialVersionUID = -3658645447433249809L;
@@ -42,12 +47,14 @@ public class Card implements Serializable{
     @JoinColumn(name = "bank_id")
 	private Bank bank;
 	
-	@Column(name = "customer_id")
+	@Column(name ="customer_id")
 	private Long customerId;
 	
 	
 	@Transient
 	private Customer customer;
+	
+	private String state;
 	
 
 
