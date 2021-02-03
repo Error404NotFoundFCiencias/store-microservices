@@ -3,6 +3,7 @@ package com.microservices.payment.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,10 +34,7 @@ public class PaymentCardController {
 
     @GetMapping("/customer/{id}")
     public ResponseEntity<List<Card>> listAllInvoicesByCustomerId(@PathVariable Long id) {
-        List<Card> cards = cardService.findAllByCustomerId(id);
-
-        return cards.isEmpty() ? ResponseEntity.noContent().build() :
-                                ResponseEntity.ok(cards);
+        return ResponseEntity.ok(cardService.findAllByCustomerId(id));
     }
 
     @PostMapping

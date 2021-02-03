@@ -1,6 +1,7 @@
 package com.microservices.customer.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.microservices.customer.model.Card;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -9,6 +10,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @Entity
@@ -47,4 +49,7 @@ public class Customer implements Serializable {
     private Region region;
 
     private String state;
+
+    @Transient
+    private List<Card> cards;
 }
