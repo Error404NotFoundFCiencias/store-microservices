@@ -1,23 +1,18 @@
 package com.microservices.payment.entity;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-
-
-
-
-import lombok.Data;
+import javax.persistence.OneToMany;
+import java.util.Collection;
 
 @Data
 @Entity
-public class Bank implements Serializable{
-	
-	private static final long serialVersionUID = 4803151066196346900L;
-	
+public class Bank {
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,5 +20,8 @@ public class Bank implements Serializable{
 	
 	private String name;
 
-	
+	@JsonIgnore
+    @OneToMany(mappedBy = "bank")
+    private Collection<Card> cards;
+
 }
