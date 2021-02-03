@@ -16,8 +16,9 @@ import com.microservices.shopping.model.Product;
 public interface ProductClient {
 
 	@GetMapping(value = "/{id}")
-    public ResponseEntity<Product> getProduct(@PathVariable("id") Long id);
+    ResponseEntity<Product> getProduct(@PathVariable("id") Long id);
 
 	@PutMapping (value = "/{id}/stock")
-    public ResponseEntity<Product> updateStockProduct(@PathVariable("id")  Long id ,@RequestParam(name = "quantity", required = true) Double quantity);
-    }
+    ResponseEntity<Product> updateStockProduct(@PathVariable("id") Long id, @RequestParam(name = "quantity") Double quantity);
+
+}

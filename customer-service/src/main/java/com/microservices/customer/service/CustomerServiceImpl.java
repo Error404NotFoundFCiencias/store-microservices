@@ -30,7 +30,7 @@ public class CustomerServiceImpl  implements CustomerService {
     public Customer createCustomer(Customer customer) {
 
         Customer customerDB = customerRepository.findByNumberID ( customer.getNumberID () );
-        if (customerDB != null){
+        if (customerDB != null && customer.getId() != null){
             return  customerDB;
         }
 

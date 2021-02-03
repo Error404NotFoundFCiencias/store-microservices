@@ -21,7 +21,7 @@ public class CardServiceImpl implements CardService {
     
     @Autowired
     CardRepository cardRepository;
-    
+
     @Autowired
 	private PasswordEncoder encoder;
 
@@ -71,6 +71,11 @@ public class CardServiceImpl implements CardService {
 	@Override
 	public List<Card> getClientCards(Long idClient) {
 		return cardRepository.findByCustomerId(idClient);
+	}
+
+	@Override
+	public List<Card> findAllByCustomerId(Long id) {
+		return cardRepository.findByCustomerId(id);
 	}
 
 }
