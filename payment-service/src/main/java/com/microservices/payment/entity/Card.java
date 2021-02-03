@@ -31,7 +31,7 @@ public class Card {
 	private String cvv;
 	
 	@NotNull(message = "El banco no puede estar vacio")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "bank_id")
 	private Bank bank;
 	
