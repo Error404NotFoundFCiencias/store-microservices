@@ -7,12 +7,12 @@ import com.microservices.payment.entity.Card;
 
 
 public interface CardService {
+	List<Card> findCardAll();
+    Card createCard(Card card);
+    Card updateCard(Card card);
+    Card deleteCard(Card card);
+    Card getCard(Long id);
+    List<Card> getClientCards(Long idClient);
 
-	public List<Card> findCardAll();
-
-    public Card createCard(Card card);
-    public Card updateCard(Card card);
-    public Card deleteCard(Card card);
-    public Card getCard(Long id);
-    public List<Card> getClientCards(Long idClient);
+    List<Card> findAllByCustomerId(Long id);
 }
