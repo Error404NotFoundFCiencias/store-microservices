@@ -1,12 +1,16 @@
 package com.microservices.shopping.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.microservices.shopping.model.Card;
 import com.microservices.shopping.model.Customer;
+import com.microservices.shopping.model.Payment;
 import lombok.Data;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -39,6 +43,8 @@ public class Invoice {
     @Column(name = "customer_id")
     private Long customerId;
 
+    private Long cardId;
+
     @Column(name = "create_at")
     @Temporal(TemporalType.DATE)
     private Date createAt;
@@ -55,6 +61,12 @@ public class Invoice {
 
     @Transient
     private Customer customer;
+
+    @Enumerated(EnumType.STRING)
+    private Payment payment;
+
+    @Transient
+    private Card card;
 
     public Invoice(){
         items = new ArrayList<>();

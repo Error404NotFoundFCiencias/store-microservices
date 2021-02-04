@@ -32,6 +32,12 @@ public class PaymentCardController {
         return  ResponseEntity.ok(cards);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Card> getCardById(@PathVariable Long id) {
+        Card c = cardService.getCard(id);
+        return ResponseEntity.ok(c);
+    }
+
     @GetMapping("/customer/{id}")
     public ResponseEntity<List<Card>> listAllInvoicesByCustomerId(@PathVariable Long id) {
         return ResponseEntity.ok(cardService.findAllByCustomerId(id));

@@ -1,6 +1,7 @@
 package com.microservices.payment.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -65,7 +66,9 @@ public class CardServiceImpl implements CardService {
 
 	@Override
 	public Card getCard(Long id) {
-		return cardRepository.findById(id).orElse(null);
+		Optional<Card> card = cardRepository.findById(id);
+		card.ifPresent(c -> c.setCustomer( customerClient.getCustomer(c.getCustomerId()).getBody() ));
+		return card.orElse(null);
 	}
 
 	@Override

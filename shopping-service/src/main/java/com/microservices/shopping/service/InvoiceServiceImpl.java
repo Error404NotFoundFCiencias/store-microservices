@@ -1,5 +1,8 @@
 package com.microservices.shopping.service;
 
+import com.microservices.shopping.client.PaymentClient;
+import com.microservices.shopping.model.Card;
+import com.microservices.shopping.model.Payment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,6 +22,7 @@ import com.microservices.shopping.repository.InvoiceItemsRepository;
 import com.microservices.shopping.repository.InvoiceRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -37,6 +41,10 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Autowired
     ProductClient productClient;
+
+    @Qualifier("com.microservices.shopping.client.PaymentClient")
+    @Autowired
+    PaymentClient paymentClient;
 
     @Override
     public List<Invoice> findInvoiceAll() {
@@ -62,15 +70,21 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public Invoice updateInvoice(Invoice invoice) {
+        if (invoice.getCardId() != null) {
+            invoice.setPayment(Payment.CARD);
+        }
+
         Invoice invoiceDB = getInvoice(invoice.getId());
         if (invoiceDB == null){
             return  null;
         }
+
         invoiceDB.setCustomerId(invoice.getCustomerId());
         invoiceDB.setDescription(invoice.getDescription());
         invoiceDB.setNumberInvoice(invoice.getNumberInvoice());
         invoiceDB.getItems().clear();
         invoiceDB.setItems(invoice.getItems());
+        invoiceDB.setPayment(invoice.getPayment());
         return invoiceRepository.save(invoiceDB);
     }
 
@@ -88,17 +102,28 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public Invoice getInvoice(Long id) {
 
-        Invoice invoice= invoiceRepository.findById(id).orElse(null);
-        if (null != invoice ){
-            Customer customer = customerClient.getCustomer(invoice.getCustomerId()).getBody();
-            invoice.setCustomer(customer);
-            List<InvoiceItem> listItem=invoice.getItems().stream().map(invoiceItem -> {
-                Product product = productClient.getProduct(invoiceItem.getProductId()).getBody();
-                invoiceItem.setProduct(product);
-                return invoiceItem; 
-            }).collect(Collectors.toList());
-            invoice.setItems(listItem);
-        }
-        return invoice ;
+        Optional<Invoice> invoice= invoiceRepository.findById(id);
+        invoice.ifPresent( inv -> {
+
+            Customer customer = null;
+
+            if (inv.getPayment().equals(Payment.CARD)) {
+                inv.setCard( paymentClient.getCardById(inv.getCardId()).getBody() );
+                if (inv.getCard().getId() != -1L && inv.getCard().getCustomer().getId() != -1L) {
+                    customer = customerClient.getCustomer( inv.getCard().getCustomer().getId() ).getBody();
+                }
+            } else {
+                customer = customerClient.getCustomer(inv.getCustomerId()).getBody();
+            }
+
+
+            if (customer != null && customer.getId() != null) {
+                inv.setCustomer(customer);
+                for (InvoiceItem item : inv.getItems()) {
+                    item.setProduct(productClient.getProduct(item.getProductId()).getBody());
+                }
+            }
+        });
+        return invoice.orElse(null);
     }
 }
