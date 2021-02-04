@@ -22,7 +22,6 @@ public class InvoiceItem  {
     private Double quantity;
     private Double  price;
 
-    @Column(name = "product_id")
     private Long productId;
 
 
