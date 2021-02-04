@@ -1,16 +1,15 @@
 package com.microservices.shopping.entity;
 
 
+import com.microservices.shopping.model.Product;
 import lombok.Data;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Transient;
 import javax.validation.constraints.Positive;
-
-import com.microservices.shopping.model.Product;
-
-//import com.microservices.shopping.model.Product;
-
-import java.io.Serializable;
 
 @Entity
 @Data

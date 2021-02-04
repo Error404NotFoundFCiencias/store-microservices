@@ -2,6 +2,7 @@ package com.microservices.shopping.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.microservices.shopping.client.CustomerClient;
@@ -29,7 +30,8 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Autowired
     InvoiceItemsRepository invoiceItemsRepository;
-    
+
+    @Qualifier("com.microservices.shopping.client.CustomerClient")
     @Autowired
     CustomerClient customerClient;
 

@@ -1,8 +1,10 @@
 package com.microservices.customer.service;
 
 import com.microservices.customer.client.CardClient;
+import com.microservices.customer.model.Card;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.microservices.customer.repository.CustomerRepository;
@@ -10,7 +12,7 @@ import com.microservices.customer.entity.Customer;
 import com.microservices.customer.entity.Region;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -19,15 +21,14 @@ public class CustomerServiceImpl  implements CustomerService {
     @Autowired
     CustomerRepository customerRepository;
 
+    @Qualifier("com.microservices.customer.client.CardClient")
     @Autowired
     CardClient cardClient;
 
     @Override
     public List<Customer> findCustomerAll() {
         List<Customer> customers = customerRepository.findAll();
-        for (Customer customer : customers) {
-            customer.setCards(cardClient.listAllInvoicesByCustomerId(customer.getId()).getBody());
-        }
+        customers.forEach(this::setCardsUsingClient);
         return customers;
     }
 
@@ -69,13 +70,18 @@ public class CustomerServiceImpl  implements CustomerService {
         if (customerDB ==null){
             return  null;
         }
-
         customer.setState("DELETED");
         return customerRepository.save(customer);
     }
 
     @Override
     public Customer getCustomer(Long id) {
-        return  customerRepository.findById(id).orElse(null);
+        Optional<Customer> customer = customerRepository.findById(id);
+        customer.ifPresent(this::setCardsUsingClient);
+        return customer.orElse(null);
+    }
+
+    private void setCardsUsingClient(Customer customer) {
+        customer.setCards(cardClient.listAllInvoicesByCustomerId(customer.getId()).getBody());
     }
 }
