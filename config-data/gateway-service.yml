@@ -9,6 +9,15 @@ eureka:
 spring:
   cloud:
     gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
       discovery:
         locator:
           enabled: true
@@ -28,4 +37,4 @@ spring:
         - id: payment-service
           uri: lb://payment-service
           predicates:
-            - Path=/payment/**
+            - Path=/payment-card/**
