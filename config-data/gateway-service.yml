@@ -12,12 +12,10 @@ spring:
       globalcors:
         corsConfigurations:
           '[/**]':
-            allowedOrigins:
-              - http://localhost:3000
+            allowedOrigins: *
             allowedMethods:
               - GET
               - POST
-              - PUT
               - DELETE
       discovery:
         locator:
