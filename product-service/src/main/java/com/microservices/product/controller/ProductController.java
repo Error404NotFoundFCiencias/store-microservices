@@ -1,12 +1,10 @@
 package com.microservices.product.controller;
 
-import ch.qos.logback.core.pattern.util.RegularEscapeUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservices.product.entity.Category;
 import com.microservices.product.entity.Product;
 import com.microservices.product.service.ProductService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +27,7 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<List<Product>> listProduct(@RequestParam(name = "categoryId", required = false) Long categoryId){
-        List<Product> products = new ArrayList<>();
+        List<Product> products;
         if (null ==  categoryId){
              products = productService.listAllProduct();
             if (products.isEmpty()){
@@ -85,7 +82,7 @@ public class ProductController {
         return ResponseEntity.ok(productDelete);
     }
     @PutMapping (value = "/{id}/stock")
-    public ResponseEntity<Product> updateStockProduct(@PathVariable  Long id ,@RequestParam(name = "quantity", required = true) Double quantity){
+    public ResponseEntity<Product> updateStockProduct(@PathVariable  Long id ,@RequestParam(name = "quantity") Double quantity){
         Product product = productService.updateStock(id, quantity);
         if (product == null){
             return ResponseEntity.notFound().build();

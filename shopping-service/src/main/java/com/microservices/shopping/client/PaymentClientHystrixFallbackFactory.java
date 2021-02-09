@@ -10,10 +10,14 @@ public class PaymentClientHystrixFallbackFactory implements PaymentClient {
     @Override
     public ResponseEntity<Card> getCardById(Long id) {
         Card card = Card.builder()
-                .id(-1L)
                 .number("")
                 .state("")
                 .build();
         return ResponseEntity.ok(card);
+    }
+
+    @Override
+    public ResponseEntity<Card> updateBalance(Long id, Double quantity) {
+        return ResponseEntity.notFound().build();
     }
 }

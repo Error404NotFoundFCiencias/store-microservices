@@ -30,40 +30,41 @@ public class CardServiceImpl implements CardService {
 
 	@Override
 	public List<Card> findCardAll() {
-		return cardRepository.findAll();
+		return cardRepository.findAllByState("CREATED");
 	}
 
 	@Override
 	public Card createCard(Card card) {
-		 Customer customer = customerClient.getCustomer(card.getCustomerId()).getBody();
-	    if (customer == null){
+		Customer customer = customerClient.getCustomer(card.getCustomerId()).getBody();
+
+	    if (customer == null || cardRepository.existsByNumber(card.getNumber())){
             return  null;
         }
+
 	    card.setCvv(encoder.encode(card.getCvv()));
 	    card.setState("CREATED");
+	    card.setId(null);
 	    return cardRepository.save(card);
-	    
-	 
 	}
 
 	@Override
 	public Card updateCard(Card card) {
-		Card cardDB = cardRepository.findById(card.getId()).orElse(null);;
-        if (cardDB == null){
+        if (!cardRepository.existsById(card.getId())){
             return  null;
         }
+		card.setCvv(encoder.encode(card.getCvv()));
+        card.setState("CREATED");
         return cardRepository.save(card);
 	}
 
 	@Override
-	public Card deleteCard(Card card) {
-		Card cardDB = cardRepository.findById(card.getId()).orElse(null);;
+	public Card deleteCard(Long id) {
+		Card cardDB = getCard(id);
         if (cardDB == null){
             return  null;
         }
-        card.setState("DELETED");
-        return cardRepository.save(card);
-		
+        cardDB.setState("DELETED");
+        return cardRepository.save(cardDB);
 	}
 
 	@Override
@@ -74,13 +75,19 @@ public class CardServiceImpl implements CardService {
 	}
 
 	@Override
-	public List<Card> getClientCards(Long idClient) {
-		return cardRepository.findByCustomerId(idClient);
+	public List<Card> findAllByCustomerId(Long id) {
+		Customer customer = customerClient.getCustomer(id).getBody();
+		if (customer == null ) return null;
+		List<Card> cards = cardRepository.findAllByCustomerId(id);
+		for (Card card : cards) {
+			card.setCustomer(customer);
+		}
+		return cardRepository.findAllByCustomerId(id);
 	}
 
 	@Override
-	public List<Card> findAllByCustomerId(Long id) {
-		return cardRepository.findByCustomerId(id);
+	public int updateBalance(Long id, Double quantity) {
+		return cardRepository.setBalance(id, quantity);
 	}
 
 }

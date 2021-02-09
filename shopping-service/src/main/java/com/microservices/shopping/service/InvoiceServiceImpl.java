@@ -1,7 +1,6 @@
 package com.microservices.shopping.service;
 
 import com.microservices.shopping.client.PaymentClient;
-import com.microservices.shopping.model.Card;
 import com.microservices.shopping.model.Payment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import com.microservices.shopping.client.ProductClient;
 import com.microservices.shopping.entity.Invoice;
 import com.microservices.shopping.entity.InvoiceItem;
 import com.microservices.shopping.model.Customer;
-import com.microservices.shopping.model.Product;
 //import com.microservices.shopping.model.Customer;
 //import com.microservices.shopping.model.Product;
 import com.microservices.shopping.repository.InvoiceItemsRepository;
@@ -23,7 +21,6 @@ import com.microservices.shopping.repository.InvoiceRepository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -48,21 +45,30 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public List<Invoice> findInvoiceAll() {
-        return  invoiceRepository.findAll();
+        List<Invoice> invoices = invoiceRepository.findAll();
+        invoices.forEach(this::setCustomerAndPayment);
+        return invoices;
     }
 
 
     @Override
     public Invoice createInvoice(Invoice invoice) {
+        if (invoice.getCardId() != null) {
+            invoice.setPayment(Payment.CARD);
+        }
+
         Invoice invoiceDB = invoiceRepository.findByNumberInvoice ( invoice.getNumberInvoice () );
         if (invoiceDB !=null){
             return  invoiceDB;
         }
         invoice.setState("CREATED");
         invoiceDB = invoiceRepository.save(invoice);
-        invoiceDB.getItems().forEach( invoiceItem -> {
+        double total = 0.0;
+        for (InvoiceItem invoiceItem : invoiceDB.getItems()) {
+            total += invoiceItem.getPrice() * invoiceItem.getQuantity();
             productClient.updateStockProduct( invoiceItem.getProductId(), invoiceItem.getQuantity() * -1);
-        });
+        }
+        // paymentClient.updateBalance(invoiceDB.getCardId(), total * -1);
 
         return invoiceDB;
     }
@@ -101,29 +107,25 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public Invoice getInvoice(Long id) {
+        paymentClient.updateBalance(11L, 500D);
 
         Optional<Invoice> invoice= invoiceRepository.findById(id);
-        invoice.ifPresent( inv -> {
-
-            Customer customer = null;
-
-            if (inv.getPayment().equals(Payment.CARD)) {
-                inv.setCard( paymentClient.getCardById(inv.getCardId()).getBody() );
-                if (inv.getCard().getId() != -1L && inv.getCard().getCustomer().getId() != -1L) {
-                    customer = customerClient.getCustomer( inv.getCard().getCustomer().getId() ).getBody();
-                }
-            } else {
-                customer = customerClient.getCustomer(inv.getCustomerId()).getBody();
-            }
-
-
-            if (customer != null && customer.getId() != null) {
-                inv.setCustomer(customer);
-                for (InvoiceItem item : inv.getItems()) {
-                    item.setProduct(productClient.getProduct(item.getProductId()).getBody());
-                }
-            }
-        });
+        invoice.ifPresent(this::setCustomerAndPayment);
         return invoice.orElse(null);
+    }
+
+    private void setCustomerAndPayment(Invoice inv) {
+        if (inv.getPayment().equals(Payment.CARD)) {
+            inv.setCard( paymentClient.getCardById(inv.getCardId()).getBody() );
+        }
+
+        Customer customer = customerClient.getCustomer(inv.getCustomerId()).getBody();
+
+        if (customer != null && customer.getId() != null) {
+            inv.setCustomer(customer);
+            for (InvoiceItem item : inv.getItems()) {
+                item.setProduct(productClient.getProduct(item.getProductId()).getBody());
+            }
+        }
     }
 }

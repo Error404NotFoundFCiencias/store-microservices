@@ -39,13 +39,37 @@ public class PaymentCardController {
     }
 
     @GetMapping("/customer/{id}")
-    public ResponseEntity<List<Card>> listAllInvoicesByCustomerId(@PathVariable Long id) {
-        return ResponseEntity.ok(cardService.findAllByCustomerId(id));
+    public ResponseEntity<List<Card>> listAllCardsByCustomerId(@PathVariable Long id) {
+        List<Card> cards = cardService.findAllByCustomerId(id);
+        return cards == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(cards);
     }
 
     @PostMapping
     public ResponseEntity<Card> createCard(@RequestBody Card card) {
-        return ResponseEntity.ok(cardService.createCard(card));
+        Card newCard = cardService.createCard(card);
+        if (newCard == null) {
+            return new ResponseEntity<>(card, HttpStatus.CONFLICT);
+        }
+        return ResponseEntity.ok(newCard);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Card> updateCard(@PathVariable Long id, @RequestBody Card card) {
+        card.setId(id);
+        Card cardDb = cardService.updateCard(card);
+        return cardDb == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(cardDb) ;
+    }
+
+    @PutMapping("/balance/{id}")
+    public ResponseEntity<Card> updateBalance(@PathVariable Long id, @RequestParam Double quantity) {
+        int result = cardService.updateBalance(id, quantity);
+        return result == 0 ? ResponseEntity.notFound().build() : ResponseEntity.ok().build() ;
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Card> deleteCard(@PathVariable Long id) {
+        Card card = cardService.deleteCard(id);
+        return card == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(card);
     }
     
     

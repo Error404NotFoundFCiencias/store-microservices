@@ -12,5 +12,10 @@ public class Card {
     private String number;
     private Date expDate;
     private String state;
-    private Customer customer;
+    private Double balance;
+
+    public String getNumber() {
+        int len  = number.length();
+        return len > 6 ? number.substring(len-4) : number;
+    }
 }

@@ -1,8 +1,7 @@
 package com.microservices.product.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.microservices.product.entity.Category;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +10,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.Date;
 
 @Entity
@@ -25,10 +24,15 @@ public class Product {
 
     @NotEmpty(message = "El nombre no debe ser vacío")
     private String name;
+
     private String description;
-    @Positive(message = "El stock debe ser mayor que cero")
+
+    @PositiveOrZero(message = "El stock debe ser mayor o igual que cero")
     private Double stock;
+
+    @PositiveOrZero(message = "El precio debe ser mayor o igual a 0")
     private Double price;
+
     private String status;
 
     @Column(name = "create_at")

@@ -14,4 +14,5 @@ public class Card {
     private String cvv;
     private Back bank;
     private String state;
+    private Double balance;
 }
